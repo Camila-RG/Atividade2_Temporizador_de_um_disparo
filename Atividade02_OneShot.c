@@ -26,5 +26,17 @@ void inicializacaocomponentes() {
 
     gpio_init(BUTTON_PIN);
     gpio_set_dir(BUTTON_PIN, GPIO_IN);
-    gpio_pull_up(BUTTON_PIN);
+    gpio_pull_up(BUTTON_PIN); // Habilita o resistor pull-up interno para o pino do botão.
+}
+
+int main()
+{
+    stdio_init_all();
+    inicializacaocomponentes();
+
+    while (true)
+    {
+
+    }
+    return 0;
 }
