@@ -31,19 +31,14 @@ void inicializacaocomponentes() {
     gpio_pull_up(BUTTON_PIN); // Habilita o resistor pull-up interno para o pino do botão.
 }
 
+// Função de callback com a rotina dos LEDs
 int64_t turn_off_callback(alarm_id_t id, void *user_data) {
-         if (contador == 0) {
-        gpio_put(LED_G_PIN, 1);
-        gpio_put(LED_B_PIN, 1);
-        gpio_put(LED_R_PIN, 1);
-
-        contador = 1;
-    } else if (contador == 1) { 
+       if (contador == 0) { 
         gpio_put(LED_G_PIN, 0);
         gpio_put(LED_B_PIN, 1);
         gpio_put(LED_R_PIN, 1);
 
-        contador = 2;
+        contador = 1;
     } else {
         gpio_put(LED_G_PIN, 0);
         gpio_put(LED_B_PIN, 0);
@@ -60,8 +55,24 @@ int main() {
 
     // Rotina principal
     while (true) {
-        // Agenda um alarme para desligar o LED após 3 segundos (3000 ms).
-        add_alarm_in_ms(3000, turn_off_callback, NULL, false);
+
+        // Verifica se o botão foi pressionado (nível baixo no pino) e se o LED não está ativo.
+        if (gpio_get(BUTTON_PIN) == 0 && contador == 0) {
+
+            sleep_ms(200); // Atraso para debounce, evitando leituras errôneas.
+
+            if (gpio_get(BUTTON_PIN) == 0){
+                //Liga os LEDs
+                gpio_put(LED_G_PIN, 1);
+                gpio_put(LED_B_PIN, 1);
+                gpio_put(LED_R_PIN, 1);
+
+                contador = 0;
+                
+                // A função 'turn_off_callback' será chamada após esse tempo.
+                add_alarm_in_ms(3000, turn_off_callback, NULL, false);
+            }
+        }
         // Introduz uma pequena pausa de 10 ms para reduzir o uso da CPU.
         sleep_ms(10);
     }
